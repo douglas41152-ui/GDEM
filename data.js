@@ -44,15 +44,15 @@ const DB = {
     { id: 7, id_produto: 4, tipo_movimentacao: "saída",    quantidade: 2,  data_movimentacao: "2026-04-10", observacao: "Venda pedido #5" },
     { id: 8, id_produto: 7, tipo_movimentacao: "entrada",  quantidade: 10, data_movimentacao: "2026-04-15", observacao: "Reposição estoque teclados" },
   ],
+
   usuarios: [
-    { id: 1, nome: "Marcos Leal",   email: "admin@gdem.com",    senha: "admin123", cargo: "admin",    data_cadastro: "2026-01-01" },
-    { id: 2, nome: "Douglas", email: "douglas@gdem.com", senha: "usuario123",    cargo: "operador", data_cadastro: "2026-01-05" },
-    { id: 3, nome: "Esther", email: "Esther@gdem.com", senha: "usuario123",    cargo: "operador", data_cadastro: "2026-01-05" },
-    { id: 3, nome: "Guilherme", email: "Guilherme@gdem.com", senha: "usuario123",    cargo: "operador", data_cadastro: "2026-01-05" },
+    { id: 1, nome: "Marcos Leal",   email: "admin@gdem.com",       senha: "admin123",   cargo: "admin",    data_cadastro: "2026-01-01" },
+    { id: 2, nome: "Douglas",       email: "douglas@gdem.com",     senha: "usuario123", cargo: "operador", data_cadastro: "2026-01-05" },
+    { id: 3, nome: "Esther",        email: "esther@gdem.com",      senha: "usuario123", cargo: "operador", data_cadastro: "2026-01-05" },
+    { id: 4, nome: "Guilherme",     email: "guilherme@gdem.com",   senha: "usuario123", cargo: "operador", data_cadastro: "2026-01-05" },
   ]
 };
 
-// IDs auto increment
 DB._nextId = {
   produtos: DB.produtos.length + 1,
   clientes: DB.clientes.length + 1,
