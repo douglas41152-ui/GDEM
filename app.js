@@ -42,7 +42,6 @@ document.querySelectorAll('.nav-item').forEach(item => {
     e.preventDefault();
     const page = item.dataset.page;
     navigateTo(page);
-    // close sidebar on mobile
     if (window.innerWidth <= 820) {
       $('sidebar').classList.remove('open');
     }
@@ -61,7 +60,6 @@ function navigateTo(page) {
   if (page === 'relatorios') renderRelatorios();
 }
 
-// mobile menu
 $('menuToggle').addEventListener('click', () => {
   $('sidebar').classList.toggle('open');
 });
@@ -70,7 +68,6 @@ $('currentDate').textContent = new Date().toLocaleDateString('pt-BR', { weekday:
 
 // ---- DASHBOARD ----
 function renderDashboard() {
-  // KPIs
   $('kpi-produtos').textContent = DB.produtos.length;
   $('kpi-clientes').textContent = DB.clientes.length;
   $('kpi-pedidos').textContent = DB.pedidos.filter(p => p.status_pedido === 'pendente').length;
@@ -88,7 +85,6 @@ function renderDashboard() {
         <td><span style="font-family:var(--font-mono);font-size:13px;color:${p.quantidade_estoque === 0 ? 'var(--red)' : 'var(--yellow)'}">${p.quantidade_estoque}</span></td>
         <td>${statusPill(p.status)}</td>
       </tr>`).join('');
-
 
   const list = $('activity-list');
   const recent = [...DB.movimentacoes].reverse().slice(0, 6);
@@ -110,7 +106,7 @@ function renderDashboard() {
     </li>`).join('') || '<li>Sem alertas no momento.</li>';
 }
 
-// PRODUTOS 
+// PRODUTOS
 let produtoEditId = null;
 
 function renderProdutos(filter = '', categoria = '', statusF = '') {
@@ -206,17 +202,13 @@ function saveProduto() {
 function editProduto(id) { openProdutoModal(id); }
 
 function deleteProduto(id) {
-  const vinculado = DB.pedidos.some(p => {
-    // simple check: block if produto has saída movimentações linked to a pedido
-    return false; // simplified for demo
-  });
   DB.produtos = DB.produtos.filter(x => x.id !== id);
   showToast('Produto excluído', 'success');
   renderProdutos();
   renderDashboard();
 }
 
-// CLIENTES 
+// CLIENTES
 let clienteEditId = null;
 
 function renderClientes() {
@@ -345,11 +337,9 @@ function savePedido() {
   const pedido = { id: DB._nextId.pedidos++, id_cliente: idCli, id_usuario: 1, data_pedido: new Date().toISOString().split('T')[0], valor_total: total, forma_pagamento: pag, status_pedido: 'finalizado' };
   DB.pedidos.push(pedido);
 
-  
   prod.quantidade_estoque -= qtd;
   if (prod.quantidade_estoque === 0) prod.status = 'indisponível';
 
-  
   DB.movimentacoes.push({ id: DB._nextId.movimentacoes++, id_produto: idProd, tipo_movimentacao: 'saída', quantidade: qtd, data_movimentacao: pedido.data_pedido, observacao: `Venda pedido #${pedido.id}` });
 
   showToast(`Pedido #${pedido.id} criado — ${fmt(total)}`, 'success');
@@ -432,7 +422,6 @@ function saveMov() {
 
 // RELATÓRIOS
 function renderRelatorios() {
-  // Top produtos 
   const vendas = {};
   DB.movimentacoes.filter(m => m.tipo_movimentacao === 'saída').forEach(m => {
     vendas[m.id_produto] = (vendas[m.id_produto] || 0) + m.quantidade;
@@ -449,7 +438,6 @@ function renderRelatorios() {
       <span class="rank-qty">${qty} un.</span>
     </li>`).join('') || '<li style="padding:18px;color:var(--white-dim);font-size:12px">Sem dados de vendas.</li>';
 
-  // Estoque resumo (top 6)
   const prods = DB.produtos.slice(0, 6);
   const maxQ = Math.max(...prods.map(p => p.quantidade_estoque), 1);
   $('estoque-bars').innerHTML = prods.map(p => {
@@ -461,7 +449,6 @@ function renderRelatorios() {
     </div>`;
   }).join('');
 
-  // Pedidos por status
   const counts = { finalizado: 0, pendente: 0, cancelado: 0 };
   DB.pedidos.forEach(p => { if (counts[p.status_pedido] !== undefined) counts[p.status_pedido]++; });
   const statusColors = { finalizado: 'var(--green)', pendente: 'var(--yellow)', cancelado: 'var(--red)' };
@@ -521,24 +508,22 @@ function toggleTheme() {
   const isLight = document.body.classList.contains('theme-light');
   const next = isLight ? 'dark' : 'light';
   applyTheme(next);
-  localStorage.setItem(THEME_KEY, next); // lembra a escolha do usuário
+  localStorage.setItem(THEME_KEY, next);
 }
 
 $('themeToggle').addEventListener('click', toggleTheme);
 
-// Carrega a preferência salva (padrão: escuro)
 applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 
-
 renderDashboard();
-// GDEM STOCK — Módulo de Usuários (com bloqueio Admin)
 
+// ============================================
+// GDEM STOCK — Módulo de Usuários (com bloqueio Admin)
+// ============================================
 (function () {
-  // ---- CONFIG ----
-  const ADMIN_SENHA = 'admin123'; // <-- TROQUE pela sua senha de administrador
+  const ADMIN_SENHA = 'GDEM';
   let adminAutenticado = false;
 
-  // ---- DADOS (cria a "tabela" de usuários se ainda não existir) ----
   if (!DB.usuarios) {
     DB.usuarios = [
       { id: 1, nome: 'Marcos Leal', email: 'marcos@gdemstock.com', cargo: 'admin', data_cadastro: '2026-01-01' },
@@ -546,206 +531,8 @@ renderDashboard();
     DB._nextId.usuarios = 2;
   }
 
-  // ---- 1. INJETA O ITEM "USUÁRIOS" NO MENU (logo após Clientes) ----
-  const clientesNav = document.querySelector('.nav-item[data-page="clientes"]');
-  const usuariosNav = document.createElement('a');
-  usuariosNav.href = '#';
-  usuariosNav.className = 'nav-item';
-  usuariosNav.dataset.page = 'usuarios';
-  usuariosNav.innerHTML = '<span class="nav-icon">◍</span> Usuários';
-  clientesNav.insertAdjacentElement('afterend', usuariosNav);
-
-  // ---- 2. INJETA A PÁGINA DE USUÁRIOS ----
-  const sec = document.createElement('section');
-  sec.className = 'page';
-  sec.id = 'page-usuarios';
-  sec.innerHTML = `
-    <div class="page-header">
-      <h1>Gestão de <span class="accent">Usuários</span></h1>
-      <button class="btn-primary" id="btnNovoUsuario">+ Novo Usuário</button>
-    </div>
-    <div class="card">
-      <table class="data-table">
-        <thead>
-          <tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Cargo</th><th>Cadastro</th><th>Ações</th></tr>
-        </thead>
-        <tbody id="usuarios-tbody"></tbody>
-      </table>
-    </div>`;
-  document.getElementById('main').appendChild(sec);
-
-  // ---- 3. INJETA O MINI-LOGIN DE ADMINISTRADOR ----
-  const loginOverlay = document.createElement('div');
-  loginOverlay.className = 'modal-overlay';
-  loginOverlay.id = 'adminLoginOverlay';
-  loginOverlay.innerHTML = `
-    <div class="modal" id="adminLoginModal" style="width:380px">
-      <div class="modal-header">
-        <span>Acesso Restrito</span>
-        <button class="modal-close" id="adminLoginClose">✕</button>
-      </div>
-      <div class="modal-body" style="align-items:center;text-align:center">
-        <div class="admin-lock">🔒</div>
-        <p style="font-size:13px;color:var(--white-dim);line-height:1.5">
-          Área exclusiva para administradores.<br>Informe a senha para continuar.
-        </p>
-        <div class="form-group" style="width:100%">
-          <label>Senha de Administrador</label>
-          <input id="adminSenhaInput" type="password" placeholder="••••••••" autocomplete="off" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" id="adminLoginCancel">Cancelar</button>
-        <button class="btn-primary" id="adminLoginEntrar">Desbloquear</button>
-      </div>
-    </div>`;
-  document.body.appendChild(loginOverlay);
-
-  // ---- NAVEGAÇÃO COM BLOQUEIO ----
-  usuariosNav.addEventListener('click', e => {
-    e.preventDefault();
-    if (adminAutenticado) {
-      irParaUsuarios();
-    } else {
-      abrirLoginAdmin();
-    }
-    if (window.innerWidth <= 820) document.getElementById('sidebar').classList.remove('open');
-  });
-
-  function irParaUsuarios() {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === 'usuarios'));
-    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-usuarios'));
-    document.getElementById('pageTitle').textContent = 'Usuários';
-    renderUsuarios();
-  }
-
-  // ---- LÓGICA DO LOGIN ----
-  function abrirLoginAdmin() {
-    loginOverlay.classList.add('open');
-    const input = document.getElementById('adminSenhaInput');
-    input.value = '';
-    setTimeout(() => input.focus(), 50);
-  }
-  function fecharLoginAdmin() {
-    loginOverlay.classList.remove('open');
-  }
-  function validarSenha() {
-    const senha = document.getElementById('adminSenhaInput').value;
-    if (senha === ADMIN_SENHA) {
-      adminAutenticado = true;
-      fecharLoginAdmin();
-      showToast('Acesso liberado', 'success');
-      irParaUsuarios();
-    } else {
-      const modal = document.getElementById('adminLoginModal');
-      modal.classList.remove('shake'); void modal.offsetWidth; modal.classList.add('shake');
-      showToast('Senha incorreta', 'error');
-    }
-  }
-  document.getElementById('adminLoginEntrar').addEventListener('click', validarSenha);
-  document.getElementById('adminLoginClose').addEventListener('click', fecharLoginAdmin);
-  document.getElementById('adminLoginCancel').addEventListener('click', fecharLoginAdmin);
-  loginOverlay.addEventListener('click', e => { if (e.target === loginOverlay) fecharLoginAdmin(); });
-  document.getElementById('adminSenhaInput').addEventListener('keydown', e => { if (e.key === 'Enter') validarSenha(); });
-
-  // ---- CRUD DE USUÁRIOS ----
-  let usuarioEditId = null;
-
-  function renderUsuarios() {
-    const tbody = document.getElementById('usuarios-tbody');
-    tbody.innerHTML = DB.usuarios.length === 0
-      ? `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">◍</div><p>Nenhum usuário cadastrado</p></div></td></tr>`
-      : DB.usuarios.map(u => `
-        <tr>
-          <td><span style="font-family:var(--font-mono);color:var(--white-dim)">#${u.id}</span></td>
-          <td><strong>${u.nome}</strong></td>
-          <td style="font-size:12px">${u.email}</td>
-          <td>${cargoPill(u.cargo)}</td>
-          <td style="font-family:var(--font-mono);font-size:12px">${fmtDate(u.data_cadastro)}</td>
-          <td><div class="actions">
-            <button class="btn-icon" onclick="editUsuario(${u.id})">✏ Editar</button>
-            <button class="btn-icon delete" onclick="deleteUsuario(${u.id})">✕ Excluir</button>
-          </div></td>
-        </tr>`).join('');
-  }
-
-  function cargoPill(c) {
-    const map = { admin: 'blue', gerente: 'green', operador: 'yellow' };
-    return `<span class="pill pill-${map[c] || 'blue'}">${c}</span>`;
-  }
-
-  function openUsuarioModal(id = null) {
-    usuarioEditId = id;
-    const u = id ? DB.usuarios.find(x => x.id === id) : null;
-    document.getElementById('modalTitle').textContent = id ? 'Editar Usuário' : 'Novo Usuário';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="form-group"><label>Nome Completo</label>
-        <input id="u-nome" type="text" placeholder="Ex: João Silva" value="${u ? u.nome : ''}" /></div>
-      <div class="form-group"><label>E-mail</label>
-        <input id="u-email" type="email" placeholder="email@exemplo.com" value="${u ? u.email : ''}" /></div>
-      <div class="form-row">
-        <div class="form-group"><label>Cargo</label>
-          <select id="u-cargo">
-            ${['admin','gerente','operador'].map(c => `<option${u && u.cargo === c ? ' selected' : ''}>${c}</option>`).join('')}
-          </select></div>
-        <div class="form-group"><label>Senha</label>
-          <input id="u-senha" type="password" placeholder="${id ? 'Em branco = manter' : 'Defina uma senha'}" /></div>
-      </div>`;
-    openModal(() => saveUsuario());
-  }
-
-  function saveUsuario() {
-    const nome  = document.getElementById('u-nome').value.trim();
-    const email = document.getElementById('u-email').value.trim();
-    const cargo = document.getElementById('u-cargo').value;
-    const senha = document.getElementById('u-senha').value;
-
-    if (!nome || !email) { showToast('Nome e e-mail são obrigatórios', 'error'); return; }
-
-    if (usuarioEditId) {
-      const u = DB.usuarios.find(x => x.id === usuarioEditId);
-      Object.assign(u, { nome, email, cargo });
-      if (senha) u.senha = senha;
-      showToast('Usuário atualizado', 'success');
-    } else {
-      DB.usuarios.push({ id: DB._nextId.usuarios++, nome, email, cargo, senha, data_cadastro: new Date().toISOString().split('T')[0] });
-      showToast('Usuário cadastrado', 'success');
-    }
-    closeModal();
-    renderUsuarios();
-  }
-
-  document.getElementById('btnNovoUsuario').addEventListener('click', () => openUsuarioModal());
-
-  // expõe as funções usadas nos onclick inline da tabela
-  window.editUsuario = id => openUsuarioModal(id);
-  window.deleteUsuario = id => {
-    DB.usuarios = DB.usuarios.filter(x => x.id !== id);
-    showToast('Usuário excluído', 'success');
-    renderUsuarios();
-  };
-})();
-// ============================================
-// GDEM STOCK — Módulo de Usuários (com bloqueio Admin)
-// Cole este bloco NO FINAL do app.js
-// ============================================
-(function () {
-  // ---- CONFIG ----
-  const ADMIN_SENHA = 'GDEM'; // senha de administrador da aba Usuários
-  let adminAutenticado = false;
-
-  // ---- DADOS (cria a "tabela" de usuários se ainda não existir) ----
-  if (!DB.usuarios) {
-    DB.usuarios = [
-      { id: 1, nome: 'Marcos Leal', email: 'marcos@gdemstock.com', cargo: 'admin', data_cadastro: '2026-01-01' },
-    ];
-    DB._nextId.usuarios = 2;
-  }
-
-    // ---- 1. USA O ITEM "USUÁRIOS" QUE JÁ EXISTE NO index.html ----
   const usuariosNav = document.getElementById('navUsuarios');
 
-  // ---- 2. INJETA A PÁGINA DE USUÁRIOS ----
   const sec = document.createElement('section');
   sec.className = 'page';
   sec.id = 'page-usuarios';
@@ -764,7 +551,6 @@ renderDashboard();
     </div>`;
   document.getElementById('main').appendChild(sec);
 
-  // ---- 3. INJETA O MINI-LOGIN DE ADMINISTRADOR ----
   const loginOverlay = document.createElement('div');
   loginOverlay.className = 'modal-overlay';
   loginOverlay.id = 'adminLoginOverlay';
@@ -791,7 +577,6 @@ renderDashboard();
     </div>`;
   document.body.appendChild(loginOverlay);
 
-  // ---- NAVEGAÇÃO COM BLOQUEIO ----
   usuariosNav.addEventListener('click', e => {
     e.preventDefault();
     if (adminAutenticado) {
@@ -809,7 +594,6 @@ renderDashboard();
     renderUsuarios();
   }
 
-  // ---- LÓGICA DO LOGIN ----
   function abrirLoginAdmin() {
     loginOverlay.classList.add('open');
     const input = document.getElementById('adminSenhaInput');
@@ -838,7 +622,6 @@ renderDashboard();
   loginOverlay.addEventListener('click', e => { if (e.target === loginOverlay) fecharLoginAdmin(); });
   document.getElementById('adminSenhaInput').addEventListener('keydown', e => { if (e.key === 'Enter') validarSenha(); });
 
-  // ---- CRUD DE USUÁRIOS ----
   let usuarioEditId = null;
 
   function renderUsuarios() {
@@ -907,7 +690,6 @@ renderDashboard();
 
   document.getElementById('btnNovoUsuario').addEventListener('click', () => openUsuarioModal());
 
-  // expõe as funções usadas nos onclick inline da tabela
   window.editUsuario = id => openUsuarioModal(id);
   window.deleteUsuario = id => {
     DB.usuarios = DB.usuarios.filter(x => x.id !== id);
@@ -915,15 +697,13 @@ renderDashboard();
     renderUsuarios();
   };
 })();
+
 // ============================================
-// GDEM STOCK — Login com Níveis de Acesso (Passo 3)
-// Cole NO FINAL do app.js
+// GDEM STOCK — Login com Níveis de Acesso
 // ============================================
 (function () {
   const loginScreen = document.getElementById('loginScreen');
   const loginBtn    = document.getElementById('loginBtn');
-  const emailInput  = document.getElementById('loginSenha') && document.getElementById('loginEmail');
-  let usuarioLogado = null;
 
   function fazerLogin() {
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -936,9 +716,6 @@ renderDashboard();
       return;
     }
 
-    usuarioLogado = user;
-
-    // Atualiza o badge do usuário na sidebar
     const avatar = document.querySelector('.user-avatar');
     const nameEl = document.querySelector('.user-name');
     const roleEl = document.querySelector('.user-role');
@@ -946,13 +723,11 @@ renderDashboard();
     if (nameEl) nameEl.textContent = user.nome;
     if (roleEl) roleEl.textContent = user.cargo;
 
-    // Controla a aba "Usuários" conforme o perfil
     const navUsuarios = document.getElementById('navUsuarios');
     if (navUsuarios) {
       navUsuarios.style.display = (user.cargo === 'admin') ? '' : 'none';
     }
 
-    // Esconde a tela de login e libera o sistema
     loginScreen.classList.add('hidden');
     showToast('Bem-vindo, ' + user.nome.split(' ')[0] + '!', 'success');
     navigateTo('dashboard');
@@ -962,25 +737,36 @@ renderDashboard();
   document.getElementById('loginSenha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
   document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
 
-  // expõe o usuário logado (útil para outros módulos)
-  window.getUsuarioLogado = () => usuarioLogado;
+  window.getUsuarioLogado = (() => {
+    let usuarioLogado = null;
+    const _fazerLogin = fazerLogin;
+    return () => usuarioLogado;
+  })();
+
+  // Expose internally
+  window.getUsuarioLogado = function() {
+    const avatar = document.querySelector('.user-avatar');
+    if (!avatar || avatar.textContent === 'ML') return null;
+    return DB.usuarios.find(u => {
+      const initials = u.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+      return initials === avatar.textContent;
+    }) || null;
+  };
 })();
+
 // ============================================
-// GDEM STOCK — Menu do Usuário (Trocar de usuário / Sair)
-// Cole NO FINAL do app.js
+// GDEM STOCK — Menu do Usuário (Trocar / Sair)
 // ============================================
 (function () {
   const badge = document.querySelector('.user-badge');
   if (!badge) return;
 
-  // Deixa o badge clicável + seta indicadora
   badge.classList.add('user-badge-clickable');
   const caret = document.createElement('span');
   caret.className = 'user-caret';
   caret.textContent = '⌃';
   badge.appendChild(caret);
 
-  // Cria o menu pop-up
   const menu = document.createElement('div');
   menu.className = 'user-menu';
   menu.id = 'userMenu';
@@ -999,16 +785,13 @@ renderDashboard();
 
   badge.addEventListener('click', toggleMenu);
 
-  // Fecha ao clicar fora ou apertar ESC
   document.addEventListener('click', e => { if (!menu.contains(e.target) && !badge.contains(e.target)) fecharMenu(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharMenu(); });
 
-  // Função que volta para a tela de login
   function voltarParaLogin() {
     fecharMenu();
     const loginScreen = document.getElementById('loginScreen');
     if (loginScreen) {
-      // limpa os campos e reexibe o login
       const email = document.getElementById('loginEmail');
       const senha = document.getElementById('loginSenha');
       if (email) email.value = '';
@@ -1018,7 +801,6 @@ renderDashboard();
     }
   }
 
-  // Trocar de usuário e Sair: ambos voltam para a tela de login
   document.getElementById('umTrocar').addEventListener('click', () => {
     voltarParaLogin();
     showToast('Selecione outro usuário', 'success');
@@ -1028,15 +810,11 @@ renderDashboard();
     showToast('Você saiu do sistema', 'success');
   });
 })();
+
 // ============================================
-// GDEM STOCK — Buscas Inteligentes (Passo 4)
-// Cole NO FINAL do app.js
+// GDEM STOCK — Buscas Inteligentes
 // ============================================
 (function () {
-  // ---------------------------------------------------------------
-  // A) BUSCA NA PÁGINA DE CLIENTES
-  // ---------------------------------------------------------------
-  // Injeta a barra de busca logo após o header da página de Clientes
   const pageClientes = document.getElementById('page-clientes');
   const headerClientes = pageClientes.querySelector('.page-header');
   const filtroCli = document.createElement('div');
@@ -1046,7 +824,6 @@ renderDashboard();
            placeholder="Buscar por nome, CPF/CNPJ, e-mail ou telefone..." />`;
   headerClientes.insertAdjacentElement('afterend', filtroCli);
 
-  // Sobrescreve renderClientes para respeitar o termo de busca
   window.renderClientes = function () {
     const termo = (document.getElementById('filterClientes')?.value || '').toLowerCase().trim();
     const tbody = document.getElementById('clientes-tbody');
@@ -1074,16 +851,11 @@ renderDashboard();
         </tr>`).join('');
   };
 
-  // Filtra em tempo real ao digitar
   document.getElementById('filterClientes').addEventListener('input', () => renderClientes());
 
-  // ---------------------------------------------------------------
-  // B) BUSCA GLOBAL NA HOME (Produtos + Clientes [+ Usuários se Admin])
-  // ---------------------------------------------------------------
   const searchInput = document.getElementById('globalSearch');
   const searchWrap = searchInput.closest('.search-wrap');
 
-  // Cria o painel de resultados
   const dropdown = document.createElement('div');
   dropdown.className = 'global-results';
   dropdown.id = 'globalResults';
@@ -1098,20 +870,17 @@ renderDashboard();
     termo = termo.toLowerCase().trim();
     if (!termo) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
 
-    // Produtos
     const produtos = DB.produtos.filter(p =>
       p.nome_produto.toLowerCase().includes(termo) ||
       (p.categoria || '').toLowerCase().includes(termo)
     ).slice(0, 5);
 
-    // Clientes
     const clientes = DB.clientes.filter(c =>
       c.nome.toLowerCase().includes(termo) ||
       (c.cpf_cnpj || '').toLowerCase().includes(termo) ||
       (c.email || '').toLowerCase().includes(termo)
     ).slice(0, 5);
 
-    // Usuários (somente Admin)
     const usuarios = isAdmin()
       ? (DB.usuarios || []).filter(u =>
           u.nome.toLowerCase().includes(termo) ||
@@ -1158,11 +927,9 @@ renderDashboard();
   searchInput.addEventListener('input', () => buscarGlobal(searchInput.value));
   searchInput.addEventListener('focus', () => { if (searchInput.value) buscarGlobal(searchInput.value); });
 
-  // Fecha ao clicar fora
   document.addEventListener('click', e => {
     if (!searchWrap.contains(e.target)) dropdown.classList.remove('open');
   });
-  // Fecha ao escolher um resultado
   dropdown.addEventListener('click', e => {
     if (e.target.closest('.gr-item')) {
       dropdown.classList.remove('open');
@@ -1170,41 +937,36 @@ renderDashboard();
     }
   });
 })();
+
 // ============================================
-// GDEM STOCK — Botão "Voltar" no Login (cancelar troca de perfil)
-// Cole NO FINAL do app.js
+// GDEM STOCK — Botão "Voltar" no Login
 // ============================================
 (function () {
   const loginScreen = document.getElementById('loginScreen');
   const loginCard   = loginScreen ? loginScreen.querySelector('.login-card') : null;
   if (!loginScreen || !loginCard) return;
 
-  // Cria o botão "Voltar"
   const btnVoltar = document.createElement('button');
   btnVoltar.id = 'loginVoltar';
   btnVoltar.className = 'login-voltar';
   btnVoltar.innerHTML = '<span>←</span> Voltar';
   loginCard.insertAdjacentElement('afterbegin', btnVoltar);
 
-  // Só faz sentido voltar se já existe um usuário logado
   function jaLogado() {
     return typeof getUsuarioLogado === 'function' && getUsuarioLogado();
   }
 
-  // Mostra/esconde o botão sempre que a tela de login aparece
   const observer = new MutationObserver(() => {
     const visivel = !loginScreen.classList.contains('hidden');
     btnVoltar.style.display = (visivel && jaLogado()) ? 'inline-flex' : 'none';
   });
   observer.observe(loginScreen, { attributes: true, attributeFilter: ['class'] });
 
-  // Ao clicar em Voltar: cancela a troca e volta para o sistema
   btnVoltar.addEventListener('click', () => {
     if (!jaLogado()) return;
     loginScreen.classList.add('hidden');
     showToast('Troca de perfil cancelada', 'success');
   });
 
-  // Estado inicial
   btnVoltar.style.display = 'none';
 })();
