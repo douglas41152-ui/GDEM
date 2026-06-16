@@ -3,46 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GDEM Stock — Sistema de Gerenciamento de Estoque</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>GDEM STOCK</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- LOGIN SCREEN -->
+
+  <!-- ===================== TELA DE LOGIN ===================== -->
   <div id="loginScreen">
     <div class="login-card">
-      <img src="logo.png" alt="GDEM Stock" class="login-logo" />
-      <h1 class="login-title">GDEM<strong>STOCK</strong></h1>
-      <p class="login-sub">Acesse sua conta para continuar</p>
+      <img src="logo.png" alt="GDEM Stock" class="login-logo" onerror="this.style.display='none'" />
+      <h1 class="login-title">GDEM <strong>STOCK</strong></h1>
+      <p class="login-sub">Sistema de Gestão de Estoque</p>
 
       <div class="login-field">
         <label for="loginEmail">E-mail</label>
-        <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="username" />
+        <input id="loginEmail" type="email" placeholder="seu@email.com" autocomplete="email" />
       </div>
       <div class="login-field">
         <label for="loginSenha">Senha</label>
-        <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password" />
+        <input id="loginSenha" type="password" placeholder="••••••••" autocomplete="current-password" />
       </div>
 
-      <button class="btn-primary login-btn" id="loginBtn">Entrar</button>
+      <button id="loginBtn" class="btn-primary login-btn">Entrar</button>
 
       <div class="login-hint">
-        <span>Teste: <strong>admin@gdem.com / admin123</strong></span>
-        <span>ou <strong>operador@gdem.com / op123</strong></span>
+        <span>Admin: <strong>admin@gdem.com</strong> / <strong>admin123</strong></span>
+        <span>Operador: <strong>douglas@gdem.com</strong> / <strong>usuario123</strong></span>
       </div>
     </div>
   </div>
-  <!-- SIDEBAR -->
+
+  <!-- ===================== SIDEBAR ===================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="logo.png" alt="GDEM Stock" class="logo-img" />
-      <span class="logo-text">GDEM<strong>STOCK</strong></span>
+      <img src="logo.png" alt="GDEM" class="logo-img" onerror="this.style.display='none'" />
+      <div class="logo-text">
+        <strong>GDEM</strong>
+        STOCK
+      </div>
     </div>
+
     <nav class="sidebar-nav">
       <a href="#" class="nav-item active" data-page="dashboard">
-        <span class="nav-icon">◈</span> Dashboard
+        <span class="nav-icon">⊞</span> Dashboard
       </a>
       <a href="#" class="nav-item" data-page="produtos">
         <span class="nav-icon">◧</span> Produtos
@@ -50,7 +56,7 @@
       <a href="#" class="nav-item" data-page="clientes">
         <span class="nav-icon">◉</span> Clientes
       </a>
-            <a href="#" class="nav-item" data-page="usuarios" id="navUsuarios">
+      <a href="#" class="nav-item" id="navUsuarios" data-page="usuarios">
         <span class="nav-icon">◍</span> Usuários
       </a>
       <a href="#" class="nav-item" data-page="pedidos">
@@ -60,13 +66,14 @@
         <span class="nav-icon">⟳</span> Movimentações
       </a>
       <a href="#" class="nav-item" data-page="relatorios">
-        <span class="nav-icon">◰</span> Relatórios
+        <span class="nav-icon">▤</span> Relatórios
       </a>
     </nav>
+
     <div class="sidebar-footer">
       <div class="user-badge">
-        <span class="user-avatar">MV</span>
-        <div class="user-info">
+        <div class="user-avatar">ML</div>
+        <div>
           <span class="user-name">Marcos Leal</span>
           <span class="user-role">admin</span>
         </div>
@@ -74,98 +81,115 @@
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="main" id="main">
+  <!-- ===================== MAIN ===================== -->
+  <div class="main" id="main">
 
-    <!-- TOP BAR -->
+    <!-- TOPBAR -->
     <header class="topbar">
       <button class="menu-toggle" id="menuToggle">☰</button>
-      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <span class="topbar-title" id="pageTitle">Dashboard</span>
       <div class="topbar-actions">
         <div class="search-wrap">
-          <input type="text" placeholder="Buscar produto, cliente..." class="search-input" id="globalSearch" />
+          <input type="text" class="search-input" id="globalSearch" placeholder="Buscar..." />
           <span class="search-icon">⌕</span>
         </div>
-        <button class="btn-theme" id="themeToggle" title="Alternar tema" aria-label="Alternar tema claro/escuro">🌙</button>
-        <button class="btn-alert" id="alertBtn">
-          <span class="alert-icon">◈</span>
-          <span class="alert-badge" id="alertCount">2</span>
+        <button class="btn-alert" id="alertBtn" title="Alertas de estoque">
+          🔔
+          <span class="alert-badge" id="alertCount">0</span>
         </button>
+        <button class="btn-theme" id="themeToggle" title="Alternar tema">🌙</button>
       </div>
     </header>
 
-    <!-- PAGES -->
+    <!-- ALERT PANEL -->
+    <div class="alert-panel" id="alertPanel">
+      <div class="alert-panel-header">Alertas de Estoque</div>
+      <ul id="alertList">
+        <li>Sem alertas no momento.</li>
+      </ul>
+    </div>
 
-    <!-- DASHBOARD -->
+    <!-- ========== PAGE: DASHBOARD ========== -->
     <section class="page active" id="page-dashboard">
       <div class="page-header">
-        <h1>Visão Geral <span class="accent">do Estoque</span></h1>
-        <p class="page-sub">Atualizado em tempo real — <span id="currentDate"></span></p>
+        <div>
+          <h1>Dashboard <span class="accent">GDEM</span></h1>
+          <p class="page-sub" id="currentDate"></p>
+        </div>
       </div>
 
+      <!-- KPIs -->
       <div class="kpi-grid">
         <div class="kpi-card kpi-blue">
-          <div class="kpi-label">Produtos Cadastrados</div>
-          <div class="kpi-value" id="kpi-produtos">24</div>
-          <div class="kpi-trend up">↑ 3 este mês</div>
+          <div class="kpi-label">Produtos</div>
+          <div class="kpi-value" id="kpi-produtos">0</div>
+          <div class="kpi-trend neutral">Total cadastrado</div>
         </div>
         <div class="kpi-card kpi-green">
-          <div class="kpi-label">Clientes Ativos</div>
-          <div class="kpi-value" id="kpi-clientes">11</div>
-          <div class="kpi-trend up">↑ 2 esta semana</div>
+          <div class="kpi-label">Clientes</div>
+          <div class="kpi-value" id="kpi-clientes">0</div>
+          <div class="kpi-trend neutral">Total cadastrado</div>
         </div>
         <div class="kpi-card kpi-yellow">
           <div class="kpi-label">Pedidos Pendentes</div>
-          <div class="kpi-value" id="kpi-pedidos">5</div>
-          <div class="kpi-trend neutral">→ estável</div>
+          <div class="kpi-value" id="kpi-pedidos">0</div>
+          <div class="kpi-trend neutral">Aguardando ação</div>
         </div>
         <div class="kpi-card kpi-red">
-          <div class="kpi-label">Alertas de Estoque</div>
-          <div class="kpi-value" id="kpi-alertas">2</div>
-          <div class="kpi-trend down">↓ Atenção necessária</div>
+          <div class="kpi-label">Alertas</div>
+          <div class="kpi-value" id="kpi-alertas">0</div>
+          <div class="kpi-trend neutral">Estoque crítico</div>
         </div>
       </div>
 
+      <!-- Dashboard Grid -->
       <div class="dashboard-grid">
-        <div class="card card-wide">
+        <!-- Alertas de estoque baixo -->
+        <div class="card">
           <div class="card-header">
-            <span>Produtos com Estoque Baixo</span>
-            <span class="badge badge-red">ALERTA</span>
+            <span>Estoque Crítico</span>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr><th>Produto</th><th>Categoria</th><th>Qtd.</th><th>Status</th></tr>
-            </thead>
-            <tbody id="low-stock-table">
-            </tbody>
-          </table>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Categoria</th>
+                  <th>Qtd.</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="low-stock-table"></tbody>
+            </table>
+          </div>
         </div>
 
+        <!-- Atividade recente -->
         <div class="card">
-          <div class="card-header"><span>Últimas Movimentações</span></div>
+          <div class="card-header">Atividade Recente</div>
           <ul class="activity-list" id="activity-list"></ul>
         </div>
       </div>
     </section>
 
-    <!-- PRODUTOS -->
+    <!-- ========== PAGE: PRODUTOS ========== -->
     <section class="page" id="page-produtos">
       <div class="page-header">
-        <h1>Gestão de <span class="accent">Produtos</span></h1>
+        <h1>Produtos <span class="accent">/ Estoque</span></h1>
         <button class="btn-primary" id="btnNovoProduto">+ Novo Produto</button>
       </div>
 
       <div class="filter-bar">
-        <input type="text" placeholder="Filtrar por nome..." class="filter-input" id="filterProdutos" />
-        <select class="filter-select" id="filterCategoria">
+        <input type="text" id="filterProdutos" class="filter-input" placeholder="Buscar produto..." />
+        <select id="filterCategoria" class="filter-select">
           <option value="">Todas as categorias</option>
-          <option value="Eletrônicos">Eletrônicos</option>
-          <option value="Alimentação">Alimentação</option>
-          <option value="Vestuário">Vestuário</option>
-          <option value="Higiene">Higiene</option>
-          <option value="Papelaria">Papelaria</option>
+          <option>Eletrônicos</option>
+          <option>Alimentação</option>
+          <option>Vestuário</option>
+          <option>Higiene</option>
+          <option>Papelaria</option>
         </select>
-        <select class="filter-select" id="filterStatus">
+        <select id="filterStatus" class="filter-select">
           <option value="">Todos os status</option>
           <option value="disponível">Disponível</option>
           <option value="indisponível">Indisponível</option>
@@ -174,94 +198,139 @@
       </div>
 
       <div class="card">
-        <table class="data-table" id="produtos-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>Produto</th><th>Categoria</th>
-              <th>Preço</th><th>Estoque</th><th>Status</th><th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="produtos-tbody"></tbody>
-        </table>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="produtos-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
-    <!-- CLIENTES -->
+    <!-- ========== PAGE: CLIENTES ========== -->
     <section class="page" id="page-clientes">
       <div class="page-header">
-        <h1>Gestão de <span class="accent">Clientes</span></h1>
+        <h1>Clientes</h1>
         <button class="btn-primary" id="btnNovoCliente">+ Novo Cliente</button>
       </div>
+
       <div class="card">
-        <table class="data-table">
-          <thead>
-            <tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>E-mail</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="clientes-tbody"></tbody>
-        </table>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>CPF / CNPJ</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="clientes-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
-    <!-- PEDIDOS -->
+    <!-- ========== PAGE: PEDIDOS ========== -->
     <section class="page" id="page-pedidos">
       <div class="page-header">
-        <h1>Controle de <span class="accent">Pedidos</span></h1>
+        <h1>Pedidos</h1>
         <button class="btn-primary" id="btnNovoPedido">+ Novo Pedido</button>
       </div>
+
       <div class="card">
-        <table class="data-table">
-          <thead>
-            <tr><th>ID</th><th>Cliente</th><th>Data</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="pedidos-tbody"></tbody>
-        </table>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Data</th>
+                <th>Total</th>
+                <th>Pagamento</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="pedidos-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
-    <!-- MOVIMENTAÇÕES -->
+    <!-- ========== PAGE: MOVIMENTAÇÕES ========== -->
     <section class="page" id="page-movimentacoes">
       <div class="page-header">
-        <h1>Histórico de <span class="accent">Movimentações</span></h1>
-        <button class="btn-primary" id="btnNovaMovimentacao">+ Registrar Entrada</button>
+        <h1>Movimentações</h1>
+        <button class="btn-primary" id="btnNovaMovimentacao">+ Registrar</button>
       </div>
+
       <div class="card">
-        <table class="data-table">
-          <thead>
-            <tr><th>ID</th><th>Produto</th><th>Tipo</th><th>Qtd.</th><th>Data</th><th>Observação</th></tr>
-          </thead>
-          <tbody id="movimentacoes-tbody"></tbody>
-        </table>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Qtd.</th>
+                <th>Data</th>
+                <th>Observação</th>
+              </tr>
+            </thead>
+            <tbody id="movimentacoes-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
-    <!-- RELATÓRIOS -->
+    <!-- ========== PAGE: RELATÓRIOS ========== -->
     <section class="page" id="page-relatorios">
       <div class="page-header">
-        <h1>Relatórios <span class="accent">Gerenciais</span></h1>
+        <h1>Relatórios</h1>
       </div>
+
       <div class="relatorios-grid">
-        <div class="card rel-card" id="rel-top">
-          <div class="card-header"><span>🏆 Top Produtos Mais Vendidos</span></div>
-          <ul class="rank-list" id="rank-list"></ul>
+        <!-- Top Produtos -->
+        <div class="card rel-card">
+          <div class="card-header">Top Produtos Vendidos</div>
+          <ol class="rank-list" id="rank-list"></ol>
         </div>
-        <div class="card rel-card" id="rel-estoque">
-          <div class="card-header"><span>📦 Resumo de Estoque</span></div>
+
+        <!-- Estoque por produto -->
+        <div class="card rel-card">
+          <div class="card-header">Nível de Estoque</div>
           <div class="estoque-bars" id="estoque-bars"></div>
         </div>
-        <div class="card rel-card" id="rel-status">
-          <div class="card-header"><span>📊 Pedidos por Status</span></div>
+
+        <!-- Pedidos por status -->
+        <div class="card rel-card">
+          <div class="card-header">Pedidos por Status</div>
           <div class="status-chart" id="status-chart"></div>
         </div>
       </div>
     </section>
 
-  </main>
+  </div>
+  <!-- fim .main -->
 
-  <!-- MODAL -->
+  <!-- ===================== MODAL ===================== -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modal">
+    <div class="modal">
       <div class="modal-header">
-        <span id="modalTitle">Novo Produto</span>
+        <span id="modalTitle">Modal</span>
         <button class="modal-close" id="modalClose">✕</button>
       </div>
       <div class="modal-body" id="modalBody"></div>
@@ -272,13 +341,7 @@
     </div>
   </div>
 
-  <!-- ALERT PANEL -->
-  <div class="alert-panel" id="alertPanel">
-    <div class="alert-panel-header">Alertas de Estoque</div>
-    <ul id="alertList"></ul>
-  </div>
-
-  <!-- TOAST -->
+  <!-- ===================== TOAST ===================== -->
   <div class="toast" id="toast"></div>
 
   <script src="data.js"></script>
