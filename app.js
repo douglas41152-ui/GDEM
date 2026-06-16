@@ -1005,3 +1005,27 @@ renderDashboard();
   
   btnVoltar.style.display = 'none';
 })();
+
+// Botão Voltar no Login (cancelar troca de perfil) 
+.login-voltar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 7px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--white-dim, #94a3b8);
+  font-size: 13px;
+  font-family: inherit;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.login-voltar:hover {
+  background: rgba(59, 130, 246, 0.14);
+  color: var(--white, #fff);
+  border-color: var(--blue, #3b82f6);
+}
+.login-voltar span { font-size: 15px; line-height: 1; }
