@@ -1,4 +1,3 @@
-
 // GDEM STOCK — App Logic (app.js)
 const $ = id => document.getElementById(id);
 const fmt = (n) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
