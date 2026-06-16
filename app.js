@@ -970,3 +970,38 @@ renderDashboard();
 
   btnVoltar.style.display = 'none';
 })();
+
+//  Botão "Voltar" no Login (cancelar troca de perfil)
+
+(function () {
+  const loginScreen = document.getElementById('loginScreen');
+  const loginCard   = loginScreen ? loginScreen.querySelector('.login-card') : null;
+  if (!loginScreen || !loginCard) return;
+
+  
+  const btnVoltar = document.createElement('button');
+  btnVoltar.id = 'loginVoltar';
+  btnVoltar.className = 'login-voltar';
+  btnVoltar.innerHTML = '<span>←</span> Voltar';
+  loginCard.insertAdjacentElement('afterbegin', btnVoltar);
+
+  function jaLogado() {
+    return typeof getUsuarioLogado === 'function' && getUsuarioLogado();
+  }
+
+  
+  const observer = new MutationObserver(() => {
+    const visivel = !loginScreen.classList.contains('hidden');
+    btnVoltar.style.display = (visivel && jaLogado()) ? 'inline-flex' : 'none';
+  });
+  observer.observe(loginScreen, { attributes: true, attributeFilter: ['class'] });
+  
+  btnVoltar.addEventListener('click', () => {
+    if (!jaLogado()) return;
+    loginScreen.classList.add('hidden');
+    showToast('Troca de perfil cancelada', 'success');
+  });
+
+  
+  btnVoltar.style.display = 'none';
+})();
