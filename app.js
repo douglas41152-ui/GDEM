@@ -1,3 +1,5 @@
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 // GDEM STOCK — App Logic (app.js)
 const $ = id => document.getElementById(id);
 const fmt = (n) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
@@ -107,6 +109,29 @@ function renderDashboard() {
 
 // PRODUTOS
 let produtoEditId = null;
+
+async function renderProdutos(filtro = '', categoria = '', statusF = '') {
+    let list = [];
+    
+    try {
+        // Puxa os dados reais do teu SQL Server através do FastAPI
+        const resposta = await fetch(`${API_BASE_URL}/produtos/listar`);
+        list = await resposta.json();
+    } catch (erro) {
+        console.error("Erro ao buscar produtos do banco:", erro);
+        // Caso a API falhe, podes deixar o fallback para o DB antigo temporariamente se quiseres:
+        list = DB.produtos; 
+    }
+
+    // Filtra os dados vindos do teu banco usando as variáveis corretas do teu projeto
+    list = list.filter(p => {
+        const matchName = p.nome_produto.toLowerCase().includes(filtro.toLowerCase());
+        const matchCat = !categoria || p.categoria === categoria;
+        const matchSt = !statusF || p.status === statusF;
+        return matchName && matchCat && matchSt;
+    });
+
+    // Daqui para baixo (Linha 144 em diante), mantém o resto original da tua função que monta o HTML na tela...
 
 function renderProdutos(filter = '', categoria = '', statusF = '') {
   let list = DB.produtos.filter(p => {
